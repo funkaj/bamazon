@@ -1,0 +1,2 @@
+# bamazon
+mysql database practice
