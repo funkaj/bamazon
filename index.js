@@ -2,6 +2,7 @@ const mysql = require('mysql')
 const inquirer = require('inquirer')
 const table = require('console.table')
 let query = ''
+let results = []
 
 let connection = mysql.createConnection({
     host: 'localhost',
@@ -33,15 +34,14 @@ function departmentSelect() {
             }
             connection.query(query, function (err, res) {
                 if (err) throw err
+                results = res
                 console.table(res)
-
                 buy()
             })
         })
 }
 
 function buy() {
-
     inquirer
         .prompt([{
             name: 'item',
@@ -53,6 +53,10 @@ function buy() {
             message: 'Please entery the qty you would like to purchase: '
         }])
         .then(function(answer) {
+            if (answer.qty >= results.stock_quantity) {
             console.log(answer.item + ' ' + answer.qty)
+        } else {
+            console.log('Not enough in stock')
+        }
         });
 }
