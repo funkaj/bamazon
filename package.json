@@ -1,0 +1,28 @@
+{
+  "name": "bootcampwk12",
+  "version": "1.0.0",
+  "description": "node customer order app",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/funkaj/bamazon.git"
+  },
+  "keywords": [
+    "bamazon"
+  ],
+  "author": "Adam Funk",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/funkaj/bamazon/issues"
+  },
+  "homepage": "https://github.com/funkaj/bamazon#readme",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^6.0.0",
+    "mysql": "^2.16.0",
+    "require": "^2.4.20"
+  }
+}
