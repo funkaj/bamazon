@@ -2,7 +2,7 @@ const mysql = require('mysql')
 const inquirer = require('inquirer')
 const table = require('console.table')
 let query = ''
-let results = []
+let results
 
 let connection = mysql.createConnection({
     host: 'localhost',
@@ -30,18 +30,20 @@ function departmentSelect() {
             if (answer.department === 'All') {
                 query = 'SELECT * FROM products'
             } else {
-                query = `SELECT products.id, products.product_name, products.department_name, products.price FROM products WHERE products.department_name = "${answer.department}" ORDER BY products.id`
+                query = `SELECT products.id, products.product_name, products.department_name, products.price, products.stock_quantity FROM products WHERE products.department_name = "${answer.department}" ORDER BY products.id`
             }
             connection.query(query, function (err, res) {
                 if (err) throw err
+
                 results = res
-                console.table(res)
-                buy()
+                //console.table(res)
+                buy(results)
             })
         })
 }
 
 function buy() {
+    console.table(results)
     inquirer
         .prompt([{
             name: 'item',
@@ -52,11 +54,15 @@ function buy() {
             type: 'input',
             message: 'Please entery the qty you would like to purchase: '
         }])
-        .then(function(answer) {
-            if (answer.qty >= results.stock_quantity) {
-            console.log(answer.item + ' ' + answer.qty)
-        } else {
-            console.log('Not enough in stock')
-        }
+        .then(function (choice) {
+            for (i = 0; i < results.length; i++) {
+                if (choice.item == results[i].id && choice.qty <= results[i].stock_quantity+1) {
+                    console.table(choice.item + ' ' + results[i].id + ' ' + choice.qty + ' ' + results[i].stock_quantity)
+                }
+                if (choice.item == results[i].id && choice.qty >= results[i].stock_quantity){
+                    console.log('out of stock')
+                    departmentSelect()
+                }
+            }
         });
 }
