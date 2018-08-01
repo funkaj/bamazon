@@ -3,7 +3,7 @@ const inquirer = require('inquirer')
 const table = require('console.table')
 let query = ''
 let results
-
+let order = []
 let connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
@@ -56,13 +56,33 @@ function buy() {
         }])
         .then(function (choice) {
             for (i = 0; i < results.length; i++) {
-                if (choice.item == results[i].id && choice.qty <= results[i].stock_quantity+1) {
+                if (choice.item == results[i].id && choice.qty <= results[i].stock_quantity) {
                     console.table(choice.item + ' ' + results[i].id + ' ' + choice.qty + ' ' + results[i].stock_quantity)
+                    order.push(results[i])
+                    addToOrder()
                 }
-                if (choice.item == results[i].id && choice.qty >= results[i].stock_quantity){
-                    console.log('out of stock')
-                    departmentSelect()
+                if (choice.item == results[i].id && choice.qty > results[i].stock_quantity){
+                    console.log('Insufficient quantity in stock. Please reselect.')
+                    buy()
                 }
             }
         });
+}
+function addToOrder(){
+    inquirer
+    .prompt([{
+        name: 'more',
+        type: 'checkbox',
+        message: 'Would you like to add to the order or checkout?',
+        choices: ['Proceed to checkout', 'Add to Order']
+    }])
+    .then(function(check){
+        if (check.more == 'Proceed to checkout') {
+            customerOrder()
+        }
+        if (check.more == 'Add to Order') { departmentSelect() }
+    })
+}
+function customerOrder(){
+    console.table(order)
 }
