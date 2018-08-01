@@ -4,6 +4,7 @@ const table = require('console.table')
 let query = ''
 let results
 let order = []
+
 let connection = mysql.createConnection({
     host: 'localhost',
     port: 3306,
@@ -57,32 +58,59 @@ function buy() {
         .then(function (choice) {
             for (i = 0; i < results.length; i++) {
                 if (choice.item == results[i].id && choice.qty <= results[i].stock_quantity) {
-                    console.table(choice.item + ' ' + results[i].id + ' ' + choice.qty + ' ' + results[i].stock_quantity)
                     order.push(results[i])
                     addToOrder()
                 }
-                if (choice.item == results[i].id && choice.qty > results[i].stock_quantity){
+                if (choice.item == results[i].id && choice.qty > results[i].stock_quantity) {
                     console.log('Insufficient quantity in stock. Please reselect.')
                     buy()
                 }
             }
         });
 }
-function addToOrder(){
+
+function addToOrder() {
     inquirer
-    .prompt([{
-        name: 'more',
-        type: 'checkbox',
-        message: 'Would you like to add to the order or checkout?',
-        choices: ['Proceed to checkout', 'Add to Order']
-    }])
-    .then(function(check){
-        if (check.more == 'Proceed to checkout') {
-            customerOrder()
-        }
-        if (check.more == 'Add to Order') { departmentSelect() }
-    })
+        .prompt([{
+            name: 'more',
+            type: 'checkbox',
+            message: 'Would you like to add to the order or checkout?',
+            choices: ['Proceed to checkout', 'Add to Order']
+        }])
+        .then(function (check) {
+            if (check.more == 'Proceed to checkout') {
+                customerOrder()
+            }
+            if (check.more == 'Add to Order') {
+                departmentSelect()
+            }
+        })
 }
-function customerOrder(){
+
+function customerOrder() {
     console.table(order)
+    inquirer
+        .prompt([{
+            name: 'confirm',
+            type: 'checkbox',
+            message: 'Review items in cart. If correct select yes. If not select no.',
+            choices: ['Yes', 'No']
+        }])
+        .then(function (confirmOrder) {
+            if (confirmOrder.confirm == 'Yes') {
+                if (choice.qty <= parseInt(results[i].stock_quantity)) {
+                    for (i = 0; i < order.length; i++) {
+                        'UPDATE products SET ? WHERE ?',
+                        [{
+                            stock_quantity: products.stock_quantity - choice.qty
+                        },
+                        {
+                            id: order[i].id
+                        }]
+                    }
+                }
+                console.log('Order placed')
+            }
+            departmentSelect()
+        })
 }
