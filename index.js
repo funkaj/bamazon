@@ -1,9 +1,10 @@
 const mysql = require('mysql')
 const inquirer = require('inquirer')
-const table = require('console.table')
-let query = ''
+const cTable = require('console.table')
+let query
 let results
 let order = []
+let userChoice = []
 
 let connection = mysql.createConnection({
     host: 'localhost',
@@ -35,9 +36,7 @@ function departmentSelect() {
             }
             connection.query(query, function (err, res) {
                 if (err) throw err
-
                 results = res
-                //console.table(res)
                 buy(results)
             })
         })
@@ -56,6 +55,7 @@ function buy() {
             message: 'Please entery the qty you would like to purchase: '
         }])
         .then(function (choice) {
+            userChoice.push(choice.qty)
             for (i = 0; i < results.length; i++) {
                 if (choice.item == results[i].id && choice.qty <= results[i].stock_quantity) {
                     order.push(results[i])
@@ -68,6 +68,7 @@ function buy() {
             }
         });
 }
+
 
 function addToOrder() {
     inquirer
@@ -86,31 +87,34 @@ function addToOrder() {
             }
         })
 }
-
 function customerOrder() {
-    console.table(order)
-    inquirer
-        .prompt([{
-            name: 'confirm',
-            type: 'checkbox',
-            message: 'Review items in cart. If correct select yes. If not select no.',
-            choices: ['Yes', 'No']
-        }])
-        .then(function (confirmOrder) {
-            if (confirmOrder.confirm == 'Yes') {
-                if (choice.qty <= parseInt(results[i].stock_quantity)) {
-                    for (i = 0; i < order.length; i++) {
-                        'UPDATE products SET ? WHERE ?',
-                        [{
-                            stock_quantity: products.stock_quantity - choice.qty
-                        },
-                        {
-                            id: order[i].id
-                        }]
+    connection.query("SELECT * FROM products", function (err, res) {
+        inquirer
+            .prompt([{
+                name: 'confirm',
+                type: 'checkbox',
+                message: 'Review items in cart. If correct select yes. If not select no.',
+                choices: ['Yes', 'No']
+            }])
+            .then(function (data) {
+                if (data.confirm == 'Yes') {
+                    for (let j = 0; j < order.length; j++) {
+                        let stock = parseInt(order[j].stock_quantity)
+                        connection.query(
+                            "UPDATE products SET ? WHERE ?", [{
+                                    stock_quantity: stock - userChoice
+                                },
+                                {
+                                    id: order[j].id
+                                }
+                            ],
+                            function (error) {
+                                if (error) throw err;
+                                console.log("Bid placed successfully!");
+                            })
                     }
                 }
-                console.log('Order placed')
-            }
-            departmentSelect()
-        })
+            })
+    })
 }
+
