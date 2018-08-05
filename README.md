@@ -1,5 +1,8 @@
 # bamazon
-Bamazon is a online store practice for use with mysql
+Bamazon is a terminal online store practice for use with mysql
+
+[Example 1]('images/example1')
+
 # Install 
 * [Node JS](https://nodejs.org/en/)
 * [NPM](https://www.npmjs.com/)

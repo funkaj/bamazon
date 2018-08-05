@@ -93,7 +93,7 @@ function customerOrder() {
                     for (let j = 0; j < order.length; j++) {
                         let stock = parseInt(order[j].stock_quantity)
                         let price = parseInt(order[j].price)
-                        let total = money.mul(price, stock)
+                        
                         connection.query(
                             "UPDATE products SET ? WHERE ?", [{
                                     stock_quantity: stock - userChoice
@@ -105,7 +105,7 @@ function customerOrder() {
                             function (error) {
                                 if (error) throw err;
                                 console.log("Order placed!");
-                                console.log('Total: $' + total)
+                                console.log('Total: $' + (price * userChoice))
                             })
                     }
                     connection.end()
