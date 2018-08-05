@@ -1,7 +1,7 @@
 # bamazon
 Bamazon is a terminal online store practice for use with mysql
 
-![Example 1]('images/example1.png?raw=true "Title")')
+![Example 1](images/example1.png?raw=true "Example 1")
 
 # Install 
 * [Node JS](https://nodejs.org/en/)
