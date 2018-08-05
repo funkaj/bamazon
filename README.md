@@ -2,6 +2,8 @@
 Bamazon is a terminal online store practice for use with mysql
 
 ![Example 1](images/example01.png?raw=true "Example 1")
+![Example 2](images/example02.png?raw=true "Example 2")
+![Example 3](images/example03.png?raw=true "Example 3")
 
 # Install 
 * [Node JS](https://nodejs.org/en/)
