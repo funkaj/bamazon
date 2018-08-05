@@ -1,8 +1,10 @@
 const mysql = require('mysql')
 const inquirer = require('inquirer')
 const cTable = require('console.table')
+const money = require("money-math");
 let query
 let results
+let resultsView
 let order = []
 let userChoice = []
 
@@ -39,11 +41,14 @@ function departmentSelect() {
                 results = res
                 buy(results)
             })
+        
         })
 }
 
 function buy() {
     console.table(results)
+    console.log('----------------------------------------------------------------------------------\n')
+    
     inquirer
         .prompt([{
             name: 'item',
@@ -55,11 +60,12 @@ function buy() {
             message: 'Please entery the qty you would like to purchase: '
         }])
         .then(function (choice) {
+            console.log('----------------------------------------------------------------------------------\n')
             userChoice.push(choice.qty)
             for (i = 0; i < results.length; i++) {
                 if (choice.item == results[i].id && choice.qty <= results[i].stock_quantity) {
                     order.push(results[i])
-                    addToOrder()
+                    customerOrder()
                 }
                 if (choice.item == results[i].id && choice.qty > results[i].stock_quantity) {
                     console.log('Insufficient quantity in stock. Please reselect.')
@@ -69,37 +75,25 @@ function buy() {
         });
 }
 
-
-function addToOrder() {
-    inquirer
-        .prompt([{
-            name: 'more',
-            type: 'checkbox',
-            message: 'Would you like to add to the order or checkout?',
-            choices: ['Proceed to checkout', 'Add to Order']
-        }])
-        .then(function (check) {
-            if (check.more == 'Proceed to checkout') {
-                customerOrder()
-            }
-            if (check.more == 'Add to Order') {
-                departmentSelect()
-            }
-        })
-}
 function customerOrder() {
+    for (let i = 0; i < order.length; i++) {
+        console.log('Product: ' + order[i].product_name + ' ' + '\nPrice: ' + order[i].price + '\nQuantity: ' + userChoice)
+        console.log('----------------------------------------------------------------------------------\n')
+    }
     connection.query("SELECT * FROM products", function (err, res) {
         inquirer
-            .prompt([{
-                name: 'confirm',
-                type: 'checkbox',
-                message: 'Review items in cart. If correct select yes. If not select no.',
-                choices: ['Yes', 'No']
-            }])
-            .then(function (data) {
+        .prompt([{
+            name: 'confirm',
+            type: 'checkbox',
+            message: 'Review items in cart. If correct select yes. If not select no.',
+            choices: ['Yes', 'No']
+        }])
+        .then(function (data) {
                 if (data.confirm == 'Yes') {
                     for (let j = 0; j < order.length; j++) {
                         let stock = parseInt(order[j].stock_quantity)
+                        let price = parseInt(order[j].price)
+                        let total = money.mul(price, stock)
                         connection.query(
                             "UPDATE products SET ? WHERE ?", [{
                                     stock_quantity: stock - userChoice
@@ -110,11 +104,12 @@ function customerOrder() {
                             ],
                             function (error) {
                                 if (error) throw err;
-                                console.log("Bid placed successfully!");
+                                console.log("Order placed!");
+                                console.log('Total: $' + total)
                             })
                     }
+                    connection.end()
                 }
             })
     })
 }
-
